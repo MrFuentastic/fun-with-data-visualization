@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <p>{{ message }}</p>
+  <div id='app'>
+    <google-map />
   </div>
 </template>
 
@@ -8,6 +8,7 @@
   import Vue from 'vue/dist/vue.esm';
   import axios from 'axios';
   import VueAxios from 'vue-axios';
+  import GoogleMap from './GoogleMap'
 
   Vue.use(VueAxios, axios)
 
@@ -23,13 +24,23 @@
       .then((response)  =>  {
         this.potholes = response.data
       })
-    }
+    },
+    components: { GoogleMap }
   }
 </script>
 
 <style scoped>
-  p {
+  /* p {
     font-size: 20px;
     text-align: center;
+  } */
+
+  #app {
+    font-family: "Avenir", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 60px;
   }
 </style>
