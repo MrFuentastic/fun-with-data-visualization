@@ -6,7 +6,7 @@
         <gmap-autocomplete
           @place_changed="setPlace">
         </gmap-autocomplete>
-        <button @click="addMarker">Add</button>
+        <button @click="addMarkers">Add</button>
       </label>
       <br/>
 
@@ -14,13 +14,14 @@
     <br>
     <gmap-map
       :center="center"
-      :zoom="12"
-      style="width:100%;  height: 400px;"
+      :zoom="11"
+      style="width:100%;  height: 600px;"
     >
       <gmap-marker
         :key="index"
         v-for="(m, index) in markers"
         :position="m.position"
+        :icon="m.icon"
         @click="center=m.position"
       ></gmap-marker>
     </gmap-map>
@@ -34,15 +35,9 @@
     name: 'GoogleMap',
     data: function () {
       return {
-        center: { lat: 45.508, lng: -73.587 },
-        markers: [],
-        places: [],
-        currentPlace: null
+        center: { lat: 41.870, lng: -87.649 },
+        markers: []
       }
-    },
-
-    mounted() {
-      this.geolocate();
     },
 
     methods: {
@@ -50,28 +45,25 @@
       setPlace(place) {
         this.currentPlace = place;
       },
-      addMarker() {
-        if (this.currentPlace) {
-          const marker = {
-            lat: this.currentPlace.geometry.location.lat(),
-            lng: this.currentPlace.geometry.location.lng()
-          };
-          this.markers.push({ position: marker });
-          this.places.push(this.currentPlace);
-          this.center = marker;
-          this.currentPlace = null;
-        }
-      },
-      geolocate: function() {
-        navigator.geolocation.getCurrentPosition(position => {
-          this.center = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-        });
+      addMarkers() {
+        this.potholes.map(ph => 
+          this.markers.push({
+            position: { lat: parseFloat(ph.latitude), lng: parseFloat(ph.longitude) },
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: 'blue',
+              fillOpacity: .4,
+              scale: 4.5,
+              // strokeColor: 'white',
+              strokeWeight: 0
+            }
+          })
+        )
       }
+    },
+    props: {
+      potholes: Array
     }
-    // props: ['markers', 'gMessage']
   }
 </script>
 
