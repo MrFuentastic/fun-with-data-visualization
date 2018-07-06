@@ -6,7 +6,9 @@
         <gmap-autocomplete
           @place_changed="setPlace">
         </gmap-autocomplete>
-        <button @click="addMarkers">Add</button>
+        <button @click="addMarkers">Load Potholes</button>
+        <button @click="completedRequests">Completed Requests</button>
+        <button @click="openRequests">Open Requests</button>
       </label>
       <br/>
 
@@ -30,12 +32,14 @@
 
 <script>
 
-
   export default {
     name: 'GoogleMap',
     data: function () {
       return {
         center: { lat: 41.870, lng: -87.649 },
+        masterList: [],
+        completedReq: [],
+        openReq: [],
         markers: []
       }
     },
@@ -45,25 +49,47 @@
       setPlace(place) {
         this.currentPlace = place;
       },
+
+      markerObject(lat, long) {
+        return {
+                position: { lat: parseFloat(lat), lng: parseFloat(long) },
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: 'blue',
+                  fillOpacity: .4,
+                  scale: 4.5,
+                  strokeWeight: 0
+                }
+              }
+      },
+
       addMarkers() {
-        this.potholes.map(ph => 
-          this.markers.push({
-            position: { lat: parseFloat(ph.latitude), lng: parseFloat(ph.longitude) },
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: 'blue',
-              fillOpacity: .4,
-              scale: 4.5,
-              // strokeColor: 'white',
-              strokeWeight: 0
+        if (this.masterList.length == 0) {
+          this.potholes.map((ph) => {
+            if (ph.status.includes("Completed")) {
+              this.completedReq.push(this.markerObject(ph.latitude, ph.longitude))
+            } else {
+              this.openReq.push(this.markerObject(ph.latitude, ph.longitude))
             }
+            this.masterList.push(this.markerObject(ph.latitude, ph.longitude))
           })
-        )
+        }
+        this.markers = this.masterList
+      },
+
+      completedRequests() {
+        this.markers = this.completedReq
+      },
+
+      openRequests() {
+        this.markers = this.openReq
       }
     },
+
     props: {
       potholes: Array
     }
   }
+
 </script>
 
