@@ -3,12 +3,10 @@
     <div>
       <h2>Search and add a pin</h2>
       <label>
-        <gmap-autocomplete
-          @place_changed="setPlace">
-        </gmap-autocomplete>
         <button @click="addMarkers">Load Potholes</button>
         <button @click="completedRequests">Completed Requests</button>
         <button @click="openRequests">Open Requests</button>
+        <input v-if="closedSlider" type="range" @change="sliderMarkers" v-model.number="sliderCurrent" :min="sliderMin" :max="sliderMax" class="slider">
       </label>
       <br/>
 
@@ -40,17 +38,17 @@
         masterList: [],
         completedReq: [],
         openReq: [],
-        markers: []
+        markers: [],
+        closedSlider: false,
+        sliderMax: 0,
+        sliderMin: 2000,
+        sliderCurrent: 0
       }
     },
 
     methods: {
-      // receives a place object via the autocomplete component
-      setPlace(place) {
-        this.currentPlace = place;
-      },
 
-      markerObject(lat, long) {
+      markerObject(lat, long, days) {
         return {
                 position: { lat: parseFloat(lat), lng: parseFloat(long) },
                 icon: {
@@ -59,15 +57,17 @@
                   fillOpacity: .4,
                   scale: 4.5,
                   strokeWeight: 0
-                }
+                },
+                timeSpan: days
               }
       },
 
       addMarkers() {
-        if (this.masterList.length == 0) {
+        if (this.masterList.length === 0) {
           this.potholes.map((ph) => {
             if (ph.status.includes("Completed")) {
-              this.completedReq.push(this.markerObject(ph.latitude, ph.longitude))
+              let daysTilComplete = this.completedTime(ph.creation_date, ph.completion_date)
+              this.completedReq.push(this.markerObject(ph.latitude, ph.longitude, daysTilComplete))
             } else {
               this.openReq.push(this.markerObject(ph.latitude, ph.longitude))
             }
@@ -75,21 +75,41 @@
           })
         }
         this.markers = this.masterList
+        this.closedSlider = false
+      },
+
+      completedTime(created, completed){
+        let days = (Date.parse(completed) / 86400000) - (Date.parse(created) / 86400000)
+        if (this.sliderMax < days) {
+          this.sliderMax = days
+        }
+        if (this.sliderMin > days) {
+          this.sliderMin = days
+        }
+        return days
       },
 
       completedRequests() {
         this.markers = this.completedReq
+        this.closedSlider = true
       },
 
       openRequests() {
         this.markers = this.openReq
+        this.closedSlider = false
+      },
+
+      sliderMarkers() {
+        let updatedMarkers = this.completedReq.filter((markerObj) => 
+          markerObj.timeSpan === this.sliderCurrent
+        )
+        this.markers = updatedMarkers
       }
     },
-
+    
     props: {
       potholes: Array
     }
   }
 
 </script>
-
