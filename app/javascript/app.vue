@@ -1,6 +1,8 @@
 <template>
   <div id='app'>
-    <google-map :potholes="potholes.arr"></google-map>
+    <div v-if="dataLoaded">
+      <google-map :potholes="potholeData"></google-map>
+    </div>
   </div>
 </template>
 
@@ -15,17 +17,25 @@
   export default {
     data: function () {
       return {
-        potholes: {
-          arr: []
-        }
+        potholeData: [],
+        dataLoaded: false
       }
     },
+
     mounted: function() {
-      axios.get("https://data.cityofchicago.org/resource/_311-potholes.json")
-      .then((response)  =>  {
-        this.potholes.arr = response.data
-      })
+      this.getPotholeData();
     },
+
+    methods: {
+      getPotholeData() {
+        axios.get("https://data.cityofchicago.org/resource/_311-potholes.json")
+        .then((response)  =>  {
+          this.potholeData = response.data
+          this.dataLoaded = true
+        })
+      }
+    },
+
     components: { GoogleMap }
   }
 </script>

@@ -1,17 +1,21 @@
 <template>
   <div>
     <div>
-      <h2>Search and add a pin</h2>
-      <label>
-        <button @click="addMarkers">Load Potholes</button>
-        <button @click="completedRequests">Completed Requests</button>
+      <br/>
+      <div>
+        <button @click="showAllRequests">All Service Requests</button>
+      </div>
+
+      <div>
         <button @click="openRequests">Open Requests</button>
+      </div>
+      <div>
+        <button @click="completedRequests">Completed Requests</button>
         <input v-if="closedSlider" type="range" @change="sliderMarkers" v-model.number="sliderCurrent" :min="sliderMin" :max="sliderMax" class="slider">
-      </label>
+      </div>  
       <br/>
 
     </div>
-    <br>
     <gmap-map
       :center="center"
       :zoom="11"
@@ -46,6 +50,10 @@
       }
     },
 
+    mounted: function() {
+      this.addMarkers();
+    },
+    
     methods: {
 
       markerObject(lat, long, days) {
@@ -59,7 +67,7 @@
                   strokeWeight: 0
                 },
                 timeSpan: days
-              }
+        }
       },
 
       addMarkers() {
@@ -78,6 +86,21 @@
         this.closedSlider = false
       },
 
+      showAllRequests() {
+        this.markers = this.masterList
+        this.closedSlider = false
+      },
+
+      openRequests() {
+        this.markers = this.openReq
+        this.closedSlider = false
+      },
+
+      completedRequests() {
+        this.markers = this.completedReq
+        this.closedSlider = true
+      },
+
       completedTime(created, completed){
         let days = (Date.parse(completed) / 86400000) - (Date.parse(created) / 86400000)
         if (this.sliderMax < days) {
@@ -87,16 +110,6 @@
           this.sliderMin = days
         }
         return days
-      },
-
-      completedRequests() {
-        this.markers = this.completedReq
-        this.closedSlider = true
-      },
-
-      openRequests() {
-        this.markers = this.openReq
-        this.closedSlider = false
       },
 
       sliderMarkers() {
