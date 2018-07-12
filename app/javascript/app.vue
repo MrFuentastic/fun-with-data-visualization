@@ -1,8 +1,6 @@
 <template>
   <div id='app'>
-    <div v-if="dataLoaded">
-      <google-map :potholes="potholeData"></google-map>
-    </div>
+      <component :is="dynamicComponent" :potholes="potholeData"></component>
   </div>
 </template>
 
@@ -10,7 +8,9 @@
   import Vue from 'vue/dist/vue.esm';
   import axios from 'axios';
   import VueAxios from 'vue-axios';
-  import GoogleMap from './GoogleMap'
+  import GoogleMap from './GoogleMap';
+  import LoadingPage from './LoadingPage'
+
 
   Vue.use(VueAxios, axios)
 
@@ -18,7 +18,7 @@
     data: function () {
       return {
         potholeData: [],
-        dataLoaded: false
+        dynamicComponent: LoadingPage
       }
     },
 
@@ -31,12 +31,12 @@
         axios.get("https://data.cityofchicago.org/resource/_311-potholes.json")
         .then((response)  =>  {
           this.potholeData = response.data
-          this.dataLoaded = true
+          this.dynamicComponent = GoogleMap
         })
       }
     },
 
-    components: { GoogleMap }
+    components: { GoogleMap, LoadingPage }
   }
 </script>
 
