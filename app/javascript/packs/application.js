@@ -1,21 +1,17 @@
-import Vue from 'vue/dist/vue.esm'
-import axios from 'axios'
-import VueAxios from 'vue-axios'
+import Vue from 'vue/dist/vue.esm';
+import App from '../App';
+import * as VueGoogleMaps from 'vue2-google-maps';
 
-Vue.use(VueAxios, axios)
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: "AIzaSyAPS5qSVhyfMJmwFLyh_MAI9UnwVA4Izvo",
+    libraries: "places" // necessary for places input
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
-  const app = new Vue({
+  new Vue({
     el: '#app',
-    data: {
-      message: "Can you say hello?",
-      potholes: []
-    },
-    mounted: function() {
-      this.axios.get("https://data.cityofchicago.org/resource/_311-potholes.json")
-      .then((response)  =>  {
-        this.potholes = response.data
-      }).bind(this)
-    }
+    components: { App }
   })
 })
